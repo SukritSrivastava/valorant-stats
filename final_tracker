@@ -1,0 +1,40 @@
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+API_KEY = os.getenv("HENRIK_API_KEY") 
+HEADERS = {"Authorization": API_KEY}
+
+name = input("Enter Valorant Name: ")
+tag = input("Enter Tag (without the #): ")
+
+
+account_url = f"https://api.henrikdev.xyz/valorant/v1/account/{name}/{tag}"
+account_response = requests.get(account_url, headers=HEADERS)
+
+if account_response.status_code == 200:
+    account_data = account_response.json()["data"]
+    region = account_data["region"]
+    account_level = account_data["account_level"]
+    
+  
+    mmr_url = f"https://api.henrikdev.xyz/valorant/v1/mmr/{region}/{name}/{tag}"
+    mmr_response = requests.get(mmr_url, headers=HEADERS)
+    
+    if mmr_response.status_code == 200:
+        mmr_data = mmr_response.json()["data"]
+        
+  
+        rank = mmr_data["currenttierpatched"] 
+        rr = mmr_data["ranking_in_tier"]      
+        
+        print(f"\n--- Player Found: {name}#{tag} ---")
+        print(f"Level: {account_level} | Region: {region.upper()}")
+        print(f"Current Rank: {rank}")
+        print(f"Current RR: {rr}")
+    else:
+        print(f"Could not fetch rank data. Error: {mmr_response.status_code}")
+        
+else:
+    print(f"Could not find account. Error: {account_response.status_code}")
